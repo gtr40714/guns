@@ -34,7 +34,7 @@ public class MonsterController : MonoBehaviour
     void ChaseTarget()
     {
         float dist = Vector3.Distance(target.transform.position, transform.position);
-        if(dist > 15) {
+        if(dist > 5) {
             Vector3 dir = transform.position - target.transform.position;
             dir = dir.normalized;
             transform.Translate(dir * velocity * Time.deltaTime);

@@ -21,7 +21,7 @@ public class GamePropsController : MonoBehaviour
     void OnTriggerEnter(Collider collider)
     {
     	Debug.Log("Enter!!!");
-        GameObject.Destroy(gameObject);
+        OnPicked();
         collider.gameObject.SendMessage("OnPickProps", propId);
     }
 
@@ -29,5 +29,10 @@ public class GamePropsController : MonoBehaviour
     void OnTriggerExit(Collider collider)
     {
 
+    }
+
+    void OnPicked() {
+        Debug.Log("The item was picked!!!");
+        GameObject.Destroy(gameObject);
     }
 }

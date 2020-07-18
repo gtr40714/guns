@@ -8,6 +8,7 @@ public class Gun
 	// private int atkRange = 10;
 	public int AttackValue { get; set; }
 	public int AttackRange { get; set; }
+	public string ResPath { get; set; }
 
 	// constructor
 	// Gun() {

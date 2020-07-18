@@ -8,7 +8,7 @@ public class GunController : MonoBehaviour
 	private Vector3 lastHitPoint;
 	private GameObject camObject;
 	private Camera cam;
-  private Gun gun = PropCreator.CreateGun(5);
+  private Gun gun = PropCreator.CreateGunM249(5);
   private AudioSource audio;
 
 	int CalculateAtkValue() {
@@ -29,32 +29,36 @@ public class GunController : MonoBehaviour
 
     void updateHitTarget()
     {
-    	RaycastHit hit;
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        Vector3 direction = ray.direction;
-        Debug.DrawRay(cam.transform.position, (direction) * 10, Color.green);
-        Vector3 point = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane));
-        if (Physics.Raycast(point, direction, out hit, Mathf.Infinity))
-   		{
-   			// if(hit.transform.tag == "Terrain")
-   			// {
-   				if(lastHitTrans != hit.transform)
-   				{
-   					lastHitTrans = hit.transform;
-   					// Debug.Log("Name: " + lastHitTrans.name);
-   				}
-   				lastHitPoint = hit.point;
-   				// Debug.Log("Point: " + lastHitPoint);
-   			// }
-   		}
-   		else
-   		{
-   			if(lastHitTrans)
-   			{
-   				// Debug.Log("No hit target");
-   				lastHitTrans = null;
-   			}
-   		}
+      RaycastHit hit;
+      // Vector3 screenPosition = Input.mousePosition;
+      Vector3 screenPosition = new Vector3(Screen.width * .5f, Screen.height * .5f, 0);
+      Ray ray = cam.ScreenPointToRay(screenPosition);
+      Vector3 direction = ray.direction;
+      Debug.DrawRay(cam.transform.position, (direction) * 10, Color.green);
+      Vector3 point = cam.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, cam.nearClipPlane));
+      if (Physics.Raycast(point, direction, out hit, Mathf.Infinity))
+      {
+      	// if(hit.transform.tag == "Terrain")
+      	// {
+      		if(lastHitTrans != hit.transform)
+      		{
+      			lastHitTrans = hit.transform;
+      			// Debug.Log("Name: " + lastHitTrans.name);
+      		}
+      		lastHitPoint = hit.point;
+      		// Debug.Log("Point: " + lastHitPoint);
+          transform.root.gameObject.SendMessage("focusTarget");
+      	// }
+      }
+      else
+      {
+      	if(lastHitTrans)
+      	{
+      		// Debug.Log("No hit target");
+      		lastHitTrans = null;
+          transform.root.gameObject.SendMessage("blurTarget");
+      	}
+      }
     }
 
     void detectInputAndMove()
@@ -67,10 +71,11 @@ public class GunController : MonoBehaviour
             Debug.Log("Point: " + lastHitPoint);
             if(lastHitTrans.gameObject)
             {
-              lastHitTrans.gameObject.SendMessage("ApplyDamage", CalculateAtkValue());
-                audio.Play();
+                lastHitTrans.gameObject.SendMessage("ApplyDamage", CalculateAtkValue());
+                // audio.Play();
             }
    			}
+        audio.Play();
     	}
     }
 

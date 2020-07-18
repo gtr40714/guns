@@ -2,6 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+enum Direction
+{
+	None,
+    Left,
+    Right,
+    Forward,
+    Backward,
+}
+
 public class PlayerController : MonoBehaviour
 {
 
@@ -10,6 +19,8 @@ public class PlayerController : MonoBehaviour
 	private int speed = 2;
 	private Vector3 dir = Vector3.zero;
 	private CharacterController chController;
+	private float gravity = 10.0f;
+	private Direction dirLR = Direction.None, dirFB = Direction.None;
 
 	void Awake()
 	{
@@ -18,61 +29,103 @@ public class PlayerController : MonoBehaviour
 
 	void Update()
 	{
-		updateByObject();
 		float rot = Input.GetAxis("Mouse X");
 		// transform.rotation.y += rot;
 		transform.rotation = Quaternion.Euler(transform.eulerAngles.x, rot + transform.eulerAngles.y, transform.eulerAngles.z);
+		updateByObject();
 	}
 
 	Vector3 calcForward() {
-		// return transform.forward;
-		return Vector3.forward;
+		return transform.forward;
+		// return Vector3.forward;
 	}
 
 	Vector3 calcBackward() {
 		return -calcForward();
 	}
 	Vector3 calcLeft() {
-		// return -transform.right;
-		return Vector3.left;
+		return -transform.right;
+		// return Vector3.left;
 	}
 	Vector3 calcRight() {
 		return -calcLeft();
 	}
 
-	void updateByObject() {
+	private void detectDirection() {
 		if(Input.GetKeyDown("w"))
 	    {
-			dir = calcForward();
+			dirFB = Direction.Forward;
 	    }
 	    else if(Input.GetKeyUp("w"))
 	    {
-	    	dir = Vector3.zero;
+	    	dirFB = Direction.None;
 	    }
 	    else if(Input.GetKeyDown("s"))
 	    {
-			dir = calcBackward();
+			dirFB = Direction.Backward;
 	    }
 	    else if(Input.GetKeyUp("s"))
 	    {
-			dir = Vector3.zero;
+			dirFB = Direction.None;
 	    }
 	    if(Input.GetKeyDown("a"))
 	    {
-			dir += calcLeft();
+			dirLR = Direction.Left;
 	    }
 	    else if(Input.GetKeyUp("a"))
 	    {
-	    	dir = Vector3.zero;
+	    	dirLR = Direction.None;
 	    }
 	    else if(Input.GetKeyDown("d"))
 	    {
-			dir += calcRight();
+			dirLR = Direction.Right;
 	    }
 	    else if(Input.GetKeyUp("d"))
 	    {
-			dir = Vector3.zero;
+			dirLR = Direction.None;
 	    }
+	}
+
+	private void applyDirectionLR() {
+		switch(dirLR) {
+			case Direction.Right:
+			dir += calcRight();
+			break;
+			case Direction.Left:
+			dir += calcLeft();
+			break;
+			case Direction.None:
+			// dir += Vector3.zero;
+			break;
+			default:
+			// dir += Vector3.zero;
+			break;
+		}
+	}
+
+	private void applyDirectionFB() {
+		switch(dirFB) {
+			case Direction.Forward:
+			dir += calcForward();
+			break;
+			case Direction.Backward:
+			dir += calcBackward();
+			break;
+			case Direction.None:
+			// dir += Vector3.zero;
+			break;
+			default:
+			// dir += Vector3.zero;
+			break;
+		}
+	}
+
+	void updateByObject() {
+
+		detectDirection();
+		dir = Vector3.zero;
+		applyDirectionLR();
+		applyDirectionFB();
 	    dir = dir.normalized;
 	    bool isControlKeyDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
 	    if(isControlKeyDown)
@@ -82,6 +135,12 @@ public class PlayerController : MonoBehaviour
 	    {
 	    	velocity = speed;
 	    }
+	    if (!chController.isGrounded)
+        {
+            dir.y -= gravity * Time.deltaTime;
+        } else {
+
+        }
 	    // Debug.Log("Speed" + velocity.ToString());
 	    // transform.Translate(dir * velocity * Time.deltaTime);
 	    chController.Move(dir * velocity * Time.deltaTime);
